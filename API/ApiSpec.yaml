@@ -1,0 +1,191 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Supplier management app
+  description: | 
+    Currently API is providing operations for managing purchase order and accessing userdetails.
+    Example,it will allow application to manage the purchase orders i.e.
+    <li>Get all PO
+    <li>Update PO
+    <li>Get PO details
+
+    and basic user details like 
+    <li>Get ID based on email
+    <li>Get Supplier Details PO
+    <li>Get PO details
+    
+
+servers:
+  - url: 'https://8b4db01e-2a39-4754-8734-65c3f88d27a0.mock.pstmn.io'
+
+tags:
+  - name: order
+  - name: user
+  
+paths:
+  /orders/all/{suppliernumber}:
+    get:
+      summary: 'It returns the list of Open Purchase orders issued for this provided supplier number'
+      operationId: getallordersforsupplier
+      tags:
+        - order
+      parameters:
+        - name: suppliernumber
+          in: path
+          description: supplier number
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: 'Returns list of PO headers. It does not contain po details'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/orderheader'
+        '404':
+          description: 'If no records found for the given supplier number'
+        '401':
+          description: 'Unauth'
+        '5XX':
+          description: 'Unexpected error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'          
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /order/{ordernumber}:
+    get:
+      summary: 'It returns the list of Open Purchase orders issued for this provided supplier number'
+      operationId: getorderdetails
+      tags:
+        - order
+      parameters:
+        - name: ordernumber
+          in: path
+          description: Order number
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: 'PO header with line details'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/orderheader'
+        '404':
+          description: 'If no records found for the given supplier number'
+        '401':
+          description: 'Unauth'
+        '5XX':
+          description: 'Unexpected error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'          
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'                
+  /user/{emailid}:
+    get:
+      summary: 
+        This API returns the user details based on email ID
+      operationId: getUserDetails
+      tags:
+        - user
+      parameters:
+        - name: emailid
+          in: path
+          description: login email
+          required: true
+          schema:
+            type: string
+            
+      responses:
+        '200':
+          description: 'User details'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/userdetails'
+        '404':
+          description: 'If no records found for the given email id'
+        '401':
+          description: 'Unauth'
+        '5XX':
+          description: 'Unexpected error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'          
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    orderheader:
+      type: object
+      properties:
+        ordernumber:
+          type: string
+        suppliername:
+          type: string
+        suppliernumber:
+          type: string
+        orderissuedate:
+          type: string
+          description: mm/dd/yyyy format
+        orderconfirmationdate:
+          type: string
+          description: mm/dd/yyyy format
+        companycode:
+          type: string
+        companydesc:
+          type: string
+        buyername:
+          type: string
+        buyerid:
+          type: string                                                            
+        tag:
+          type: string
+    userdetails:
+      type: object
+      properties:
+        username:
+          type: string
+        supplierid:
+          type: string
+        address:
+          type: string
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
